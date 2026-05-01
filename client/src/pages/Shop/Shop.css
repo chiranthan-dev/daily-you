@@ -1,0 +1,94 @@
+.points-chip {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 6px 14px;
+    background: var(--green-dim);
+    border: 1px solid rgba(57, 255, 20, 0.3);
+    border-radius: 20px;
+    margin-left: auto;
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.shop-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.shop-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+.shop-card.cant-afford {
+    opacity: 0.5;
+}
+
+.shop-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.shop-item-name {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.shop-item-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.shop-item-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+}
+
+.shop-cost {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* Halo Animation for Purchasing */
+@keyframes haloPulse {
+    0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); border-color: rgba(57, 255, 20, 1); }
+    70% { box-shadow: 0 0 0 20px rgba(57, 255, 20, 0); border-color: rgba(57, 255, 20, 0.5); }
+    100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); border-color: var(--border); }
+}
+
+.halo-animation {
+    animation: haloPulse 1.5s ease-out;
+}
+
+.rarity-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border: 1px solid;
+    border-radius: 4px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    vertical-align: middle;
+}
