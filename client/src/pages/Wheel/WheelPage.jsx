@@ -6,7 +6,13 @@ import api from '../../api/axios';
 import './Wheel.css';
 
 const DEFAULT_SLOTS = [
-    "10 Pushups", "No Sugar for 1 Day", "Give friend $5", "Cold Shower", "Skip a meal", "Run 1 mile"
+    "10 Pushups", "No Sugar", "Give friend $5", "Cold Shower", "Skip a meal", "Run 1 mile"
+];
+
+// Premium palette
+const COLORS = [
+    "#FF2A55", "#1E1E2C", "#FF6B00", "#2D2D3F", "#8B5CF6", 
+    "#151520", "#00F0FF", "#252535", "#F59E0B", "#181825"
 ];
 
 export default function WheelPage() {
@@ -56,95 +62,145 @@ export default function WheelPage() {
 
         const spins = Math.floor(Math.random() * 5) + 5; // 5 to 10 full spins
         const degreePerSlot = 360 / slots.length;
-        const randomSlot = Math.floor(Math.random() * slots.length);
-        const finalDegree = (spins * 360) + (360 - (randomSlot * degreePerSlot)) - (degreePerSlot / 2);
+        const randomSlotIndex = Math.floor(Math.random() * slots.length);
+        
+        // Target angle to position the selected slot under the top pointer (-90 degrees)
+        const midAngle = (randomSlotIndex + 0.5) * degreePerSlot;
+        const targetRotation = -90 - midAngle;
+        
+        const finalDegree = (spins * 360) + targetRotation;
 
         setRotation(finalDegree);
 
         setTimeout(() => {
             setSpinning(false);
-            setResult(slots[randomSlot]);
-            // Reset rotation so it doesn't unwind if spun again
+            setResult(slots[randomSlotIndex]);
             setRotation(finalDegree % 360);
         }, 4000);
     };
 
-    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><div className="spinner" style={{ width: 40, height: 40 }}></div></div>;
+    if (loading) return <div className="loader-container"><div className="spinner"></div></div>;
 
-    const colors = ["#FF6B00", "#39FF14", "#00D4FF", "#FF00FF", "#FFFF00", "#FF0000", "#00FF00", "#0000FF", "#00FFFF", "#FF00AA"];
+    const renderWheel = () => {
+        const radius = 150;
+        const numSlots = slots.length;
+        
+        return (
+            <svg viewBox="-150 -150 300 300" className="wheel-svg" style={{ transform: `rotate(${rotation}deg)` }}>
+                <defs>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                {slots.map((slot, i) => {
+                    const startAngle = (i / numSlots) * Math.PI * 2;
+                    const endAngle = ((i + 1) / numSlots) * Math.PI * 2;
+                    const x1 = Math.cos(startAngle) * radius;
+                    const y1 = Math.sin(startAngle) * radius;
+                    const x2 = Math.cos(endAngle) * radius;
+                    const y2 = Math.sin(endAngle) * radius;
+                    const midAngle = ((startAngle + endAngle) / 2) * (180 / Math.PI);
+
+                    const pathData = `M 0 0 L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`;
+
+                    return (
+                        <g key={i}>
+                            <path 
+                                d={pathData} 
+                                fill={COLORS[i % COLORS.length]} 
+                                stroke="rgba(255,255,255,0.05)"
+                                strokeWidth="2"
+                            />
+                            <text 
+                                x={radius * 0.6} 
+                                y="0" 
+                                fill="#ffffff" 
+                                fontSize="12" 
+                                fontWeight="700" 
+                                fontFamily="system-ui, sans-serif"
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                transform={`rotate(${midAngle})`}
+                                style={{ letterSpacing: '0.5px' }}
+                            >
+                                {slot.length > 15 ? slot.substring(0, 15) + '...' : slot}
+                            </text>
+                        </g>
+                    );
+                })}
+                <circle cx="0" cy="0" r="20" fill="#151520" stroke="#FF2A55" strokeWidth="3" filter="url(#glow)" />
+            </svg>
+        );
+    };
 
     return (
         <div className="page wheel-page">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28, alignSelf: 'flex-start' }}>
-                <button className="btn btn-ghost" onClick={() => navigate(-1)}><ArrowLeft size={16} /></button>
-                <h2 className="page-title neon-orange" style={{ margin: 0 }}><Target size={20} /> Punishment Wheel</h2>
+            <div className="wheel-header">
+                <button className="btn-icon" onClick={() => navigate(-1)}><ArrowLeft size={20} /></button>
+                <h2 className="title-gradient"><Target size={24} /> Punishment Wheel</h2>
             </div>
 
-            <div className="card" style={{ marginBottom: 20 }}>
-                <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>Weekly Point Balance: <span style={{ color: weeklyPoints >= 0 ? 'var(--green)' : '#ff5050', fontSize: 24 }}>{weeklyPoints}</span></h3>
+            <div className="glass-panel status-panel">
+                <div className="status-header">
+                    <h3>Weekly Point Balance</h3>
+                    <div className={`points-badge ${weeklyPoints >= 0 ? 'positive' : 'negative'}`}>
+                        {weeklyPoints}
+                    </div>
+                </div>
                 {weeklyPoints >= 0 ? (
-                    <p style={{ color: 'var(--green)', marginTop: 10 }}>Great job! You survived this week without a punishment.</p>
+                    <p className="status-msg success">Great job! You survived this week without a punishment.</p>
                 ) : (
-                    <p style={{ color: '#ff5050', marginTop: 10 }}>Oh no! Your balance is negative. You must spin the wheel.</p>
+                    <p className="status-msg danger">Oh no! Your balance is negative. You must spin the wheel.</p>
                 )}
             </div>
 
-            <div className="wheel-container">
-                <div className="wheel-pointer"></div>
-                <div className="wheel" style={{ transform: `rotate(${rotation}deg)` }}>
-                    {slots.map((slot, i) => {
-                        const deg = (360 / slots.length) * i;
-                        const skew = 90 - (360 / slots.length);
-                        return (
-                            <div 
-                                key={i} 
-                                className="wheel-slot" 
-                                style={{ 
-                                    transform: `rotate(${deg}deg) skewY(-${skew}deg)`,
-                                    backgroundColor: colors[i % colors.length]
-                                }}
-                            >
-                                <span style={{ transform: `skewY(${skew}deg) rotate(15deg)`, paddingLeft: '50px' }}>{slot}</span>
-                            </div>
-                        );
-                    })}
+            <div className="wheel-wrapper">
+                <div className="wheel-pointer">
+                    <div className="pointer-triangle"></div>
                 </div>
+                {renderWheel()}
             </div>
 
             <button 
-                className="btn btn-orange btn-lg" 
+                className={`spin-btn ${spinning ? 'spinning' : ''}`} 
                 onClick={spinWheel} 
                 disabled={spinning || weeklyPoints >= 0}
-                style={{ fontSize: 20, padding: '15px 40px', marginTop: 20 }}
             >
-                {spinning ? 'Spinning...' : 'SPIN THE WHEEL'}
+                {spinning ? 'SPINNING...' : 'SPIN THE WHEEL'}
+                <div className="btn-glow"></div>
             </button>
 
             {result && (
-                <div className="punishment-result">
-                    <h3 className="neon-orange">Your Punishment:</h3>
-                    <h2 style={{ color: '#fff', margin: '10px 0' }}>{result}</h2>
+                <div className="result-glass">
+                    <h4>YOUR PUNISHMENT</h4>
+                    <h2 className="gradient-text-red">{result}</h2>
                 </div>
             )}
 
-            <div className="slot-editor card">
-                <h4 style={{ marginBottom: 15, color: 'var(--orange)' }}>Customize Wheel Slots</h4>
-                {slots.map((slot, i) => (
-                    <div key={i} className="slot-item">
-                        <input className="input" value={slot} readOnly style={{ flex: 1 }} />
-                        <button className="btn btn-ghost" onClick={() => handleDeleteSlot(i)}><Trash2 size={16} color="#ff5050" /></button>
-                    </div>
-                ))}
-                <div className="slot-item" style={{ marginTop: 15 }}>
+            <div className="glass-panel editor-panel">
+                <h4 className="editor-title">Customize Wheel Slots</h4>
+                <div className="slots-list">
+                    {slots.map((slot, i) => (
+                        <div key={i} className="slot-input-group">
+                            <input className="glass-input" value={slot} readOnly />
+                            <button className="btn-icon-danger" onClick={() => handleDeleteSlot(i)}>
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                <div className="slot-input-group new-slot">
                     <input 
-                        className="input" 
+                        className="glass-input" 
                         value={newSlot} 
                         onChange={e => setNewSlot(e.target.value)} 
-                        placeholder="New punishment..." 
-                        style={{ flex: 1 }}
+                        placeholder="Add new punishment..." 
                         onKeyDown={e => e.key === 'Enter' && handleAddSlot()}
                     />
-                    <button className="btn btn-orange" onClick={handleAddSlot}><Plus size={16} /></button>
+                    <button className="btn-icon-success" onClick={handleAddSlot}>
+                        <Plus size={18} />
+                    </button>
                 </div>
             </div>
         </div>
