@@ -4,7 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { warmUpServer } from './api/axios';
 import './index.css';
+
+// The API sleeps when idle. Start waking it the moment the page loads so it is
+// ready by the time the user submits the login form.
+warmUpServer();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

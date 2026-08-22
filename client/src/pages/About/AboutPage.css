@@ -596,3 +596,10 @@
         text-align: center;
     }
 }
+/* ---- Closing CTA: sign-up and log-in side by side ---- */
+.about-cta-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}

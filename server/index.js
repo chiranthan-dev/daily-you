@@ -14,11 +14,20 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
+// Vercel gives every preview deployment its own generated hostname, so match
+// those by pattern rather than listing them one by one.
+const previewOriginPattern = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
+const isAllowedOrigin = (origin) =>
+  allowedOrigins.includes(origin) || previewOriginPattern.test(origin);
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (Postman, curl, same-origin serverless)
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin ${origin} not allowed`));
+    // Requests with no origin (Postman, curl, server-to-server) are allowed.
+    if (!origin) return callback(null, true);
+    // Deny by returning false, never by throwing — throwing here escapes into
+    // the error handler and returns a confusing 500 instead of a CORS refusal.
+    callback(null, isAllowedOrigin(origin));
   },
   credentials: true
 }));
@@ -39,8 +48,15 @@ app.use('/api/shop', require('./routes/shop'));
 app.use('/api/items', require('./routes/items'));
 app.use('/api/friends', require('./routes/friends'));
 
-// Health check
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+// Health check. Mounted under /api as well so the frontend can reach it
+// through its configured API base URL (used to wake the server on page load).
+const health = (req, res) => res.json({
+  status: 'ok',
+  db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+  uptime: process.uptime()
+});
+app.get('/health', health);
+app.get('/api/health', health);
 
 // Start server
 const PORT = process.env.PORT || 5000;

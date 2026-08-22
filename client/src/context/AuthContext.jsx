@@ -11,14 +11,26 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (token) {
-            api.get('/user/me')
-                .then(res => setUser(res.data))
-                .catch(() => logout())
-                .finally(() => setLoading(false));
-        } else {
+        if (!token) {
             setLoading(false);
+            return;
         }
+        api.get('/user/me')
+            .then(res => {
+                setUser(res.data);
+                localStorage.setItem('dy_user', JSON.stringify(res.data));
+            })
+            .catch(err => {
+                // Only sign the user out if the server actually rejected the
+                // token. Network errors and cold-start timeouts must leave the
+                // session intact — we fall back to the cached user instead.
+                if (err.response?.status === 401) {
+                    logout();
+                } else {
+                    console.warn('Could not refresh user, using cached session.', err.message);
+                }
+            })
+            .finally(() => setLoading(false));
     }, [token]);
 
     const login = (tokenVal, userData) => {

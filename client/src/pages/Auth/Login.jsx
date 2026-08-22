@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { LogIn, PlayCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../api/axios';
+import api, { friendlyError } from '../../api/axios';
 import './Auth.css';
 
 export default function Login() {
@@ -21,7 +21,7 @@ export default function Login() {
             toast.success(`Welcome back, ${res.data.user.username}!`);
             navigate('/');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Login failed');
+            toast.error(friendlyError(err, 'Login failed'));
         } finally {
             setLoading(false);
         }
@@ -50,6 +50,11 @@ export default function Login() {
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
+                <div className="auth-divider"><span>or</span></div>
+                <Link to="/about" className="btn-demo">
+                    <PlayCircle size={16} />
+                    View Demo &amp; How It Works
+                </Link>
                 <p className="auth-footer">New here? <Link to="/register">Create account</Link></p>
             </div>
         </div>

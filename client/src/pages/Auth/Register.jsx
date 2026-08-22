@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../api/axios';
+import api, { friendlyError } from '../../api/axios';
 import './Auth.css';
 
 const STEPS = ['Account', 'Goals', 'Sleep', 'Macros'];
@@ -53,7 +53,7 @@ export default function Register() {
             toast.success('Welcome to Daily You! Let\'s get started 🚀');
             navigate('/');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Registration failed');
+            toast.error(friendlyError(err, 'Registration failed'));
         } finally {
             setLoading(false);
         }

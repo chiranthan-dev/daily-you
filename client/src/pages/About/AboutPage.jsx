@@ -52,7 +52,8 @@ const stack = [
     { name: 'Node.js + Express', icon: '🟢', detail: 'REST API backend' },
     { name: 'MongoDB Atlas', icon: '🍃', detail: 'Cloud database' },
     { name: 'JWT Auth', icon: '🔐', detail: '30-day secure tokens' },
-    { name: 'Vercel', icon: '▲', detail: 'Frontend + backend hosting' },
+    { name: 'Vercel', icon: '▲', detail: 'Frontend hosting' },
+    { name: 'Render', icon: '🚀', detail: 'API hosting' },
     { name: 'Lucide Icons', icon: '✨', detail: 'Icon system' }
 ];
 
@@ -73,7 +74,7 @@ export default function AboutPage() {
                     <a href="#points">Points</a>
                     <a href="#stack">Stack</a>
                     <button className="btn-about-cta" onClick={() => navigate('/login')}>
-                        Open App →
+                        Log In →
                     </button>
                 </div>
             </nav>
@@ -248,9 +249,14 @@ export default function AboutPage() {
                 <div className="about-container" style={{ textAlign: 'center' }}>
                     <h2 className="about-cta-title">Ready to level up?</h2>
                     <p className="about-cta-sub">Start tracking today. No excuses.</p>
-                    <button className="btn-about-primary btn-xl" onClick={() => navigate('/register')}>
-                        Create Your Account
-                    </button>
+                    <div className="about-cta-btns">
+                        <button className="btn-about-primary btn-xl" onClick={() => navigate('/register')}>
+                            Create Your Account
+                        </button>
+                        <button className="btn-about-secondary btn-xl" onClick={() => navigate('/login')}>
+                            Log In to Daily You
+                        </button>
+                    </div>
                 </div>
             </section>
 

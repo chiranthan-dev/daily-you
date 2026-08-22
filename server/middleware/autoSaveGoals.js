@@ -25,6 +25,15 @@ async function autoSaveGoals(req, res, next) {
         let totalPointsAdded = 0;
         let autoSaved = false;
 
+        // A goal can only be judged from the day it was created onwards.
+        // Without this, adding a goal mid-month back-penalises every earlier
+        // day of that month for a goal that did not exist yet.
+        const firstScorableDay = (goal) => {
+            const created = new Date(goal.createdAt);
+            if (created.getMonth() + 1 !== month || created.getFullYear() !== year) return 1;
+            return created.getDate();
+        };
+
         // Check all past days (1 to effectiveToday-1) for unsaved goals
         for (let d = 1; d < effectiveToday; d++) {
             const blacklisted = isBlacklisted(d, blacklistedDates);
@@ -47,7 +56,11 @@ async function autoSaveGoals(req, res, next) {
                     : goal.pointsApplied?.[dayStr] !== undefined;
                 if (alreadyApplied) continue;
 
-                if (blacklisted || sectionDisabled) {
+                if (d < firstScorableDay(goal)) {
+                    // Predates the goal — record it as settled at zero so the
+                    // day is not reconsidered on every subsequent request.
+                    goal.pointsApplied.set(dayStr, 0);
+                } else if (blacklisted || sectionDisabled) {
                     goal.pointsApplied.set(dayStr, 0);
                 } else {
                     // Use whatever the completion state is (ticked or unticked)
