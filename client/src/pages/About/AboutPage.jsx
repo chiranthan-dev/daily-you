@@ -14,15 +14,15 @@ const features = [
         icon: '🌙',
         title: 'Sleep Tracker',
         color: 'blue',
-        desc: 'Log nightly sleep and wake times. The system scores you based on both total duration and how close you hit your personal sleep target. Aim for 8h at your exact target for maximum points.',
-        points: ['+5 pts exact target', '+3 pts any 8h', '−5 pts < 6.5h']
+        desc: 'Log nightly sleep and wake times. You are scored purely on how close your actual sleep duration lands to the target you set yourself — oversleeping counts against you just as undersleeping does.',
+        points: ['+5 pts within 15 min', '+3 pts within 1h', '−5 pts over 1.5h off']
     },
     {
         icon: '🍽️',
         title: 'Macros Tracker',
         color: 'orange',
-        desc: 'Track daily protein, carbs, and fat intake against your personal targets. The scoring rewards accuracy — the closer you hit your targets, the more points you earn.',
-        points: ['+5 pts ≤10g deviation', '+2 pts ≤30g', '−5 pts ≥50g']
+        desc: 'Track daily protein, carbs, and fat intake against your personal targets. Scoring uses your combined deviation across all three macros, so accuracy everywhere matters.',
+        points: ['+5 pts ≤10g combined', '+2 pts ≤30g combined', '−5 pts ≥50g combined']
     },
     {
         icon: '✅',
@@ -192,18 +192,18 @@ export default function AboutPage() {
                             },
                             {
                                 title: '🌙 Sleep', color: 'blue', rows: [
-                                    ['Exact target + 8h sleep', '+5'],
-                                    ['Any 8h sleep', '+3'],
-                                    ['Within ±1.5h of target', '+2'],
-                                    ['< 6.5h or major deviation', '−5'],
+                                    ['Within 15 min of your target', '+5'],
+                                    ['Within 1 hour of target', '+3'],
+                                    ['Within 1.5 hours of target', '+2'],
+                                    ['More than 1.5h off target', '−5'],
                                 ]
                             },
                             {
                                 title: '🍽️ Macros', color: 'orange', rows: [
-                                    ['Deviation ≤ 10g per macro', '+5'],
-                                    ['Deviation ≤ 30g', '+2'],
-                                    ['Deviation 31–49g', '+1'],
-                                    ['Deviation ≥ 50g', '−5'],
+                                    ['Combined deviation ≤ 10g', '+5'],
+                                    ['Combined deviation ≤ 30g', '+2'],
+                                    ['Combined deviation 31–49g', '+1'],
+                                    ['Combined deviation ≥ 50g', '−5'],
                                 ]
                             },
                         ].map(t => (
@@ -223,7 +223,7 @@ export default function AboutPage() {
                         ))}
                     </div>
                     <div className="about-note">
-                        💡 Monthly reset — positive points carry forward, negative resets to 0. Use a 🧊 Freeze Card to skip any single day's penalties.
+                        💡 Sleep and macros are scored against the targets you set yourself, and deviation is symmetric — overshooting costs the same as undershooting. Monthly reset: positive points carry forward, negative resets to 0. Use a 🧊 Freeze Card to skip any single day's penalties.
                     </div>
                 </div>
             </section>
